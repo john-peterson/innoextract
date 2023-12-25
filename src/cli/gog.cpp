@@ -412,6 +412,14 @@ void process_rar_files(const std::vector<fs::path> & files,
 	                         + "\": install `unrar` or `unar`");
 }
 
+void process_arc_files(const std::vector<fs::path> & files,
+                       const extract_options & o, const setup::info & info) {
+	
+	if((!o.list && !o.test && !o.extract) || files.empty()) {
+		return;
+	}
+}
+
 void process_bin_files(const std::vector<fs::path> & files, const extract_options & o,
                       const setup::info & info) {
 	
@@ -422,6 +430,12 @@ void process_bin_files(const std::vector<fs::path> & files, const extract_option
 	
 	char magic[4];
 	if(!ifs.read(magic, std::streamsize(boost::size(magic))).fail()) {
+		
+		if(std::memcmp(magic, "ArC!", 3) == 0) {
+			ifs.close();
+			process_arc_files(files, o, info);
+			return;
+		}
 		
 		if(std::memcmp(magic, "Rar!", 4) == 0) {
 			ifs.close();
